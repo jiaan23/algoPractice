@@ -12,6 +12,27 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 // http://www.codechef.com/problems/RHOUSE
+/*
+Input:
+3
+3 5
+HHR
+1 2 3
+1 2 5
+1 3 10
+3 2 -1
+3 1 7
+2 2
+RR
+1 2 1
+2 1 2
+3 3
+HRR
+1 2 1
+1 3 2
+2 3 3
+*/
+
 public class HousesAndRestaurants {
 	public static void main(String[] args) throws NumberFormatException, IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
