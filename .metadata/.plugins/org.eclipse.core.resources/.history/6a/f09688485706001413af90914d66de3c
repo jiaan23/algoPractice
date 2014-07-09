@@ -1,0 +1,47 @@
+package easy;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class HousesAndRestaurants {
+	public static void main(String[] args) throws NumberFormatException, IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+		int numOfTests = Integer.parseInt(br.readLine());
+
+		for (int i = 0; i < numOfTests; i++) {
+			int[] nm = readInts(br, 2);
+			int n = nm[0];
+			int m = nm[1];
+
+			String line = br.readLine();
+
+			char[] buildings = new char[n];
+			for (int j = 0; j < n; j++) {
+				buildings[j] = line.charAt(j);
+			}
+
+			int[][] lines = new int[m][];
+			for (int j = 0; j < m; j++) {
+				lines[j] = readInts(br, 3);
+			}
+		}
+
+		return;
+	}
+
+	public static int[] readInts(BufferedReader br, int expectedCount) throws IOException {
+		int[] results = new int[expectedCount];
+
+		String line = br.readLine();
+		StringTokenizer st = new StringTokenizer(line, " ");
+
+		for (int i = 0; i < expectedCount; i++) {
+			results[i] = Integer.parseInt(st.nextToken());
+		}
+
+		return results;
+	}
+}

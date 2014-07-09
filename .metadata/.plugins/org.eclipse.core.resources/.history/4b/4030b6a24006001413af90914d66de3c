@@ -1,0 +1,9 @@
+package math;
+
+public class Bases {
+
+	public static void main(String[] args) {
+		System.out.println(Integer.parseInt("3111", 2));
+	}
+
+}

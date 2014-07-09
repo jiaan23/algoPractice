@@ -1,0 +1,105 @@
+package easy;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+// http://www.codechef.com/problems/RHOUSE
+public class HousesAndRestaurants {
+	public static void main(String[] args) throws NumberFormatException, IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+		int numOfTests = Integer.parseInt(br.readLine());
+
+		int[] costs = new int[numOfTests];
+
+		for (int i = 0; i < numOfTests; i++) {
+			int[] nm = readInts(br, 2);
+			int n = nm[0];
+			int m = nm[1];
+
+			String line = br.readLine();
+
+			char[] buildings = new char[n+1];
+			buildings[0] = '-';
+			for (int j = 1; j <= n; j++) {
+				buildings[j] = line.charAt(j);
+			}
+
+			int[][] lines = new int[m][];
+			for (int j = 0; j < m; j++) {
+				lines[j] = readInts(br, 3);
+			}
+
+			costs[i] = calculateCost(buildings, lines);
+		}
+
+		return;
+	}
+
+	public static int calculateCost(char[] buildings, int[][] lines) {
+
+		
+		return 0;
+	}
+
+	public static int[] readInts(BufferedReader br, int expectedCount) throws IOException {
+		int[] results = new int[expectedCount];
+
+		String line = br.readLine();
+		StringTokenizer st = new StringTokenizer(line, " ");
+
+		for (int i = 0; i < expectedCount; i++) {
+			results[i] = Integer.parseInt(st.nextToken());
+		}
+
+		return results;
+	}
+
+	public static class Line implements Comparable<Line> {
+		private int from;
+		private int to;
+		private int cost;
+
+		public Line(int from, int to, int cost) {
+			super();
+			this.from = from;
+			this.to = to;
+			this.cost = cost;
+		}
+
+		public int getFrom() {
+			return from;
+		}
+
+		public void setFrom(int from) {
+			this.from = from;
+		}
+
+		public int getTo() {
+			return to;
+		}
+
+		public void setTo(int to) {
+			this.to = to;
+		}
+
+		public int getCost() {
+			return cost;
+		}
+
+		public void setCost(int cost) {
+			this.cost = cost;
+		}
+
+		@Override
+		public int compareTo(Line other) {
+
+			if (this.getCost() == other.getCost()) return 0;
+			else if (this.getCost() > other.getCost()) return 1;
+			else return -1;
+		}
+
+	}
+}

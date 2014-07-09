@@ -1,0 +1,15 @@
+package math;
+
+public class Geometry {
+
+	public static void main(String[] args) {
+		int[][] rect1 = {{2,3},{9,10}}, rect2 = {{4,4},{11,11}};
+
+		System.out.println(rectToString(rect1));
+	}
+
+	public static String rectToString(int[][] rect) {
+		return "((" + rect[0][0] + "," + rect[0][1] + "),("
+				+ rect[1][0] + "," + rect[1][1] + "))";
+	}
+}
