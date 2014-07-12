@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,175 +34,92 @@ HRR
 2 3 3
 */
 
+/*
+1
+6 7
+HHHHRR
+4 5 2
+1 2 -1
+1 4 5
+1 3 6
+3 4 1
+2 4 3
+2 6 2
+*/
+
 public class HousesAndRestaurants {
+	private static int cost = 0;
+	private static DisjointSet ds;
+	private static Line[] lines;
+
 	public static void main(String[] args) throws NumberFormatException, IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		int numOfTests = Integer.parseInt(br.readLine());
-
-		int[] costs = new int[numOfTests];
+		Line maxLine = new Line(-1, -1, Integer.MAX_VALUE);
 
 		for (int i = 0; i < numOfTests; i++) {
 			int[] nm = readInts(br, 2);
 			int n = nm[0];
 			int m = nm[1];
 
-			String line = br.readLine();
+			cost = 0;
+			ds = new DisjointSet(n);
+			lines = new Line[m];
 
-			char[] buildings = new char[n+1];
-			buildings[0] = '-';
-			for (int j = 1; j <= n; j++) {
-				buildings[j] = line.charAt(j-1);
+			String buildings = br.readLine();
+
+			for (int j = 0; j < n; j++) {
+				char b = buildings.charAt(j);
+
+				if (b == 'R') {
+					ds.makeSet(j, true);
+				} else {
+					ds.makeSet(j, false);
+				}
 			}
 
-			int[][] lines = new int[m][];
 			for (int j = 0; j < m; j++) {
-				lines[j] = readInts(br, 3);
+				int[] line = readInts(br, 3);
+				line[0]--;
+				line[1]--;
+
+				if (line[2] <= 0) {
+					cost += line[2];
+					ds.union(line[0], line[1]);
+					lines[j] = maxLine;
+				} else {
+					lines[j] = new Line(line[0], line[1], line[2]);
+				}
 			}
 
-			costs[i] = calculateCost(buildings, lines);
-			System.out.println(costs[i]);
+			calculateCost();
+
+			System.out.println(cost);
 		}
 
 		return;
 	}
 
-	public static int calculateCost(char[] buildings, int[][] lines) {
 
-		Set<Integer> houseSet = new HashSet<Integer>();
-		for (int i = 1; i < buildings.length; i++) {
-			if (buildings[i] == 'H') {
-				houseSet.add(i);
-			}
-		}
+	private static void calculateCost() {
+		Arrays.sort(lines);
 
-		List<Line> lineList = new ArrayList<Line>();
 		for (int i = 0; i < lines.length; i++) {
-			lineList.add(new Line(lines[i][0], lines[i][1], lines[i][2]));
-		}
+			Line line = lines[i];
 
-		Collections.sort(lineList);
+			if (line.cost == Integer.MAX_VALUE) break;
 
-		Iterator<Line> lineIter = lineList.iterator();
+			int root1 = ds.findRoot(line.from);
+			int root2 = ds.findRoot(line.to);
 
-		List<Set<Integer>> connectedHousesList = new ArrayList<Set<Integer>>();
-		List<Set<Line>> connectedLinesList = new ArrayList<Set<Line>>();
-		List<Boolean> visitedConnectedHousesList = new ArrayList<Boolean>();
-
-		while (!houseSet.isEmpty() && lineIter.hasNext()) {
-			Line line = lineIter.next();
-
-			if (buildings[line.getFrom()] == 'R' && buildings[line.getTo()] == 'R') {
+			if (root1 == root2 || (ds.isDone[root1] && ds.isDone[root2])) {
 				continue;
 			}
 
-			int setIndex1 = -1;
-			int setIndex2 = -1;
-
-			for (int i = 0; i < connectedHousesList.size(); i++) {
-				if (connectedHousesList.get(i).contains(line.getFrom())) {
-					setIndex1 = i;
-				}
-
-				if (connectedHousesList.get(i).contains(line.getTo())) {
-					setIndex2 = i;
-				}
-			}
-
-			if (setIndex1 == -1 && setIndex2 == -1) {
-				Set<Integer> s = new HashSet<Integer>();
-				s.add(line.getFrom());
-				s.add(line.getTo());
-				connectedHousesList.add(s);
-
-				Set<Line> sLine = new HashSet<Line>();
-				sLine.add(line);
-				connectedLinesList.add(sLine);
-
-				if (buildings[line.getFrom()] == 'R' || buildings[line.getTo()] == 'R') {
-					visitedConnectedHousesList.add(new Boolean(true));
-					houseSet.remove(line.getFrom());
-					houseSet.remove(line.getTo());
-
-				} else {
-					visitedConnectedHousesList.add(new Boolean(false));
-				}
-
-
-			} else if (setIndex1 != setIndex2) {
-				if (setIndex1 == -1) {
-					if (buildings[line.getFrom()] == 'R') {
-						if (!visitedConnectedHousesList.get(setIndex2)) {
-							connectedHousesList.get(setIndex2).add(line.getFrom());
-							
-							visitedConnectedHousesList.set(setIndex2, new Boolean(true));
-							houseSet.removeAll(connectedHousesList.get(setIndex2));
-
-							connectedLinesList.get(setIndex2).add(line);
-						}
-					} else {
-						connectedHousesList.get(setIndex2).add(line.getFrom());
-						connectedLinesList.get(setIndex2).add(line);
-
-						if (visitedConnectedHousesList.get(setIndex2)) {
-							houseSet.remove(line.getFrom());
-						}
-					}
-
-				} else if (setIndex2 == -1) {
-					if (buildings[line.getTo()] == 'R') {
-						if (!visitedConnectedHousesList.get(setIndex1)) {
-							connectedHousesList.get(setIndex1).add(line.getTo());
-
-							visitedConnectedHousesList.set(setIndex1, new Boolean(true));
-							houseSet.removeAll(connectedHousesList.get(setIndex1));
-
-							connectedLinesList.get(setIndex1).add(line);
-						}
-					} else {
-						connectedHousesList.get(setIndex1).add(line.getTo());
-						connectedLinesList.get(setIndex1).add(line);
-
-						if (visitedConnectedHousesList.get(setIndex1)) {
-							houseSet.remove(line.getTo());
-						}
-					}
-
-				} else {
-					int min = Math.min(setIndex1, setIndex2);
-					int max = Math.max(setIndex1, setIndex2);
-
-					connectedHousesList.get(min).addAll(connectedHousesList.get(max));
-					connectedHousesList.remove(max);
-
-					connectedLinesList.get(min).addAll(connectedLinesList.get(max));
-					connectedLinesList.remove(max);
-
-					if (visitedConnectedHousesList.get(setIndex1) || visitedConnectedHousesList.get(setIndex2)) {
-						visitedConnectedHousesList.set(min, new Boolean(true));
-
-						houseSet.removeAll(connectedHousesList.get(setIndex1));
-						houseSet.removeAll(connectedHousesList.get(setIndex2));
-					}
-
-					visitedConnectedHousesList.remove(max);
-				}
-			}
+			ds.union(root1, root2);
+			cost += line.cost;
 		}
-
-		int cost = 0;
-		//Set<Line> resultLineSet = new HashSet<Line>();
-
-		for (int i = 0; i < connectedLinesList.size(); i++) {
-			if (visitedConnectedHousesList.get(i)) {
-				for (Line line : connectedLinesList.get(i)) {
-					cost += line.getCost();
-					//resultLineSet.add(line);
-				}
-			}
-		}
-		
-		return cost;
 	}
 
 	public static int[] readInts(BufferedReader br, int expectedCount) throws IOException {
@@ -218,67 +136,85 @@ public class HousesAndRestaurants {
 	}
 
 	public static class Line implements Comparable<Line> {
-		private Integer from;
-		private Integer to;
-		private Integer cost;
+		int from;
+		int to;
+		int cost;
 
-		public Line(Integer from, Integer to, Integer cost) {
+		public Line(int from, int to, int cost) {
 			super();
 			this.from = from;
 			this.to = to;
-			this.cost = cost;
-		}
-
-		public Integer getFrom() {
-			return from;
-		}
-
-		public void setFrom(Integer from) {
-			this.from = from;
-		}
-
-		public Integer getTo() {
-			return to;
-		}
-
-		public void setTo(Integer to) {
-			this.to = to;
-		}
-
-		public Integer getCost() {
-			return cost;
-		}
-
-		public void setCost(Integer cost) {
 			this.cost = cost;
 		}
 
 		@Override
 		public int compareTo(Line other) {
 
-			return this.getCost().compareTo(other.getCost());
+			return this.cost - other.cost;
 		}
 	}
 
-	public static class House {
-		private int index;
-		private boolean visited;
-		public House(int index, boolean visited) {
-			super();
-			this.index = index;
-			this.visited = visited;
+	public static class DisjointSet {
+		int[] parent;
+		boolean[] isDone;
+		int[] rank;
+		int size;
+
+		public DisjointSet(int m) {
+			parent = new int[m];
+			Arrays.fill(parent, -1);
+
+			isDone = new boolean[m];
+			Arrays.fill(isDone, false);
+
+			rank = new int[m];
+			Arrays.fill(rank, -1);
+
+			size = m;
 		}
-		public int getIndex() {
-			return index;
+
+		public void makeSet(int i, boolean done) {
+			parent[i] = i;
+			rank[i] = 0;
+			isDone[i] = done;
 		}
-		public void setIndex(int index) {
-			this.index = index;
+
+		public int findRoot(int i) {
+			if (parent[i] == i) {
+				return i;
+			}
+
+			return findRoot(parent[i]);
 		}
-		public boolean isVisited() {
-			return visited;
+
+		public void union(int i1, int i2) {
+			int root1 = findRoot(i1);
+			int root2 = findRoot(i2);
+			int newRoot;
+
+			if (root1 != root2) {
+				newRoot = link(root1, root2);
+				if (isDone[root1] || isDone[root2])
+					isDone[newRoot] = true;
+			}
 		}
-		public void setVisited(boolean visited) {
-			this.visited = visited;
+
+		private int link(int x, int y) {
+			if (rank[x] < rank[y]) {
+				parent[x] = y;
+				return y;
+			}
+
+			else if (rank[x] > rank[y]) {
+				parent[y] = x;
+				return x;
+			}
+
+			else {
+				parent[x] = y;
+				rank[y]++;
+				return y;
+			}
 		}
 	}
 }
